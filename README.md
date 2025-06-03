@@ -4,6 +4,8 @@
   <img src="./img/logo_white_sq.png" alt="Fractree Logo Generator" width="300">
 </div>
 
+DEMO: [https://yudikubota.github.io/fractree-elements/](https://yudikubota.github.io/fractree-elements/)
+
 A web-based tool for designing, animating, and exporting dynamic Fractree-style logos.
 Control all visual parameters (radii, spoke count, thickness, angles, masks) with sliders, animate them with per-parameter velocity, and record smooth SVG-to-video output.
 
