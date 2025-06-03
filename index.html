@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Fractree Logo – Animatable & Recordable</title>
+<style>
+ :root{font-family:system-ui,sans-serif}
+ html,body{margin:0;height:100vh;display:flex;box-sizing:border-box}
+ #sidebar{width:340px;padding:14px;border-right:1px solid #ccc;background:#fafafa;overflow-y:auto;box-sizing:border-box}
+ #sidebar h2{margin:0 0 6px;font-size:1.05em}
+ #sidebar label{display:block;margin:8px 0 2px;font-size:.85em}
+ #sidebar input[type=range],#sidebar input[type=color],#sidebar input[type=number]{width:100%}
+ #sidebar input[type=number]{font-size:.8em}
+ #stage{flex:1;display:flex;flex-direction:column;gap:14px;padding:14px;align-items:center;overflow:auto;box-sizing:border-box}
+ .svgRow{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+ svg{width:400px;height:400px;border:1px solid #ccc;background:#fff}
+ button{margin:4px 4px 0 0;padding:4px 10px}
+</style>
+</head>
+<body>
+
+<!-- ───────────────────────── SIDEBAR ────────────────────────── -->
+<aside id="sidebar">
+  <h2>Core r / d</h2>
+  <label>r (inner) <span id="rVal">80</span> px
+    <input id="r" type="range" min="40" max="100" value="80">
+    <input id="rVel" type="number" step="1" value="0" title="px / sec">
+  </label>
+  <label>d (offset) <span id="dVal">60</span> px
+    <input id="d" type="range" min="10" max="60" value="60">
+    <input id="dVel" type="number" step="1" value="0" title="px / sec">
+  </label>
+
+  <hr><h2>Spokes</h2>
+  <label>Spoke count <span id="numLinesVal">32</span>
+    <input id="numLines" type="range" min="4" max="120" value="32">
+    <input id="numLinesVel" type="number" step="1" value="0" title="spokes / sec">
+  </label>
+  <label>Min thick <span id="minThickVal">5</span> px
+    <input id="minThick" type="range" min="1" max="20" value="5">
+    <input id="minThickVel" type="number" step="1" value="0" title="px / sec">
+  </label>
+  <label>Max thick <span id="maxThickVal">22</span> px
+    <input id="maxThick" type="range" min="1" max="40" value="22">
+    <input id="maxThickVel" type="number" step="1" value="0" title="px / sec">
+  </label>
+  <label>Peak angle <span id="peakAngleVal">90</span>°
+    <input id="peakAngle" type="range" min="0" max="360" value="90">
+    <input id="peakAngleVel" type="number" step="1" value="0" title="deg / sec">
+  </label>
+
+  <hr><h2>Start‑spoke Offsets</h2>
+  <label>Front start <span id="frontRotVal">3</span>°
+    <input id="frontRot" type="range" min="0" max="360" value="3">
+    <input id="frontRotVel" type="number" step="1" value="0" title="deg / sec">
+  </label>
+  <label>Back start  <span id="backRotVal">0</span>°
+    <input id="backRot" type="range" min="0" max="360" value="0">
+    <input id="backRotVel" type="number" step="1" value="0" title="deg / sec">
+  </label>
+
+  <hr><h2>Masks</h2>
+  <label>Mask rotation <span id="maskRotVal">180</span>°
+    <input id="maskRot" type="range" min="0" max="360" value="180">
+    <input id="maskRotVel" type="number" step="1" value="0" title="deg / sec">
+  </label>
+
+  <hr><h2>Colours</h2>
+  <label>Front <input id="colFront" type="color" value="#000000"></label>
+  <label>Back  <input id="colBack"  type="color" value="#000000"></label>
+
+  <hr><label><input id="invert" type="checkbox" checked>Invert direction</label>
+
+  <hr>
+  <button id="playBtn">Play</button>
+  <button id="recordBtn">Start Recording</button>
+  <button id="stopRecBtn" disabled>Stop & Download</button>
+  <p><small>Display 400 × 400 px</small></p>
+</aside>
+
+<!-- ────────────────────── STAGE / CANVAS ───────────────────── -->
+<main id="stage">
+  <div class="svgRow">
+    <svg id="svgFront"></svg>
+    <svg id="svgBack"></svg>
+  </div>
+  <svg id="svgMerged"></svg>
+  <canvas id="capture" width="400" height="400" style="display:none"></canvas>
+</main>
+
+<script>
+/* ╔═══════════════════════ SHORTCUTS ═══════════════════════╗ */
+const $ = id=>document.getElementById(id);
+const VIEW=400,CX=VIEW/2,CY=VIEW/2,TAU=Math.PI*2;
+["svgFront","svgBack","svgMerged"].forEach(id=>$(id).setAttribute("viewBox",`0 0 ${VIEW} ${VIEW}`));
+
+/* ╔════════════ PARAMETERS & CONTROL WIRING ════════════════╗ */
+const paramList=[
+  {id:"r",min:40,max:100},
+  {id:"d",min:10,max:60},
+  {id:"numLines",min:4,max:120},
+  {id:"minThick",min:1,max:20},
+  {id:"maxThick",min:1,max:40},
+  {id:"peakAngle",min:0,max:360},
+  {id:"frontRot",min:0,max:360},
+  {id:"backRot",min:0,max:360},
+  {id:"maskRot",min:0,max:360}
+];
+const controls={};paramList.forEach(p=>{controls[p.id]=$(p.id);controls[p.id+"Vel"]=$(p.id+"Vel")});
+controls.colFront=$("colFront");controls.colBack=$("colBack");controls.invert=$("invert");
+
+function syncLabels(){paramList.forEach(p=>$(p.id+"Val").textContent=Math.round(controls[p.id].value));}
+
+/* ╔════════════════════ GEOMETRY HELPERS ═══════════════════╗ */
+const spokeWidth=(a,p,tMin,tMax,inv)=>inv?tMin+(tMax-tMin)*(((a-p+TAU)%TAU)/TAU):tMin+(tMax-tMin)*(1-((a-p+TAU)%TAU)/TAU);
+function buildSpokes({count,rInner,rOuter,tMin,tMax,peak,stroke,invert,offset}){
+  const frag=document.createDocumentFragment();
+  for(let i=0;i<count;i++){
+    const ang=offset+TAU*i/count;
+    const w=spokeWidth(ang,peak+offset,tMin,tMax,invert);
+    const ln=document.createElementNS("http://www.w3.org/2000/svg","line");
+    ln.setAttribute("x1",CX+rInner*Math.cos(ang));ln.setAttribute("y1",CY+rInner*Math.sin(ang));
+    ln.setAttribute("x2",CX+rOuter*Math.cos(ang));ln.setAttribute("y2",CY+rOuter*Math.sin(ang));
+    ln.setAttribute("stroke",stroke);ln.setAttribute("stroke-width",w.toFixed(2));ln.setAttribute("stroke-linecap","butt");
+    frag.appendChild(ln);
+  }
+  return frag;
+}
+function semiPath(yOff,Rin,Rout,dir){const S=90;let d="";const s=dir>0?-Math.PI/2:Math.PI/2;for(let i=0;i<=S;i++){const th=s+i*Math.PI/S;d+=(i?"L":"M")+(Rout*Math.cos(th))+" "+(yOff+Rout*Math.sin(th))+" ";}for(let i=S;i>=0;i--){const th=s+i*Math.PI/S;d+="L"+(Rin*Math.cos(th))+" "+(Rin*Math.sin(th))+" ";}return d+"Z";}
+function makeMask(id,left,Rin,Rout,dOff,rot){const m=document.createElementNS("http://www.w3.org/2000/svg","mask");m.id=id;const bg=document.createElementNS("http://www.w3.org/2000/svg","rect");bg.setAttribute("width",VIEW);bg.setAttribute("height",VIEW);bg.setAttribute("fill","black");m.appendChild(bg);const g=document.createElementNS("http://www.w3.org/2000/svg","g");g.setAttribute("transform",`translate(${CX} ${CY}) rotate(${rot})`);const half=document.createElementNS("http://www.w3.org/2000/svg","rect");half.setAttribute("x",left?-VIEW:0);half.setAttribute("y",-VIEW);half.setAttribute("width",VIEW);half.setAttribute("height",VIEW*2);half.setAttribute("fill","white");g.appendChild(half);const add=document.createElementNS("http://www.w3.org/2000/svg","path");add.setAttribute("d",semiPath(left?-dOff:+dOff,Rin,Rout,left?1:-1));add.setAttribute("fill","white");g.appendChild(add);const sub=document.createElementNS("http://www.w3.org/2000/svg","path");sub.setAttribute("d",semiPath(left?+dOff:-dOff,Rin,Rout,left?-1:+1));sub.setAttribute("fill","black");g.appendChild(sub);m.appendChild(g);return m;}
+
+/* ╔════════════════════ RENDER FUNCTION ═════════════════════╗ */
+function render(){
+  syncLabels();
+  const r=+controls.r.value,d=+controls.d.value,Rout=r+d,rOuter=r+2*d,count=+controls.numLines.value,tMin=+controls.minThick.value,tMax=+controls.maxThick.value,peak=(+controls.peakAngle.value*Math.PI)/180,offF=(+controls.frontRot.value*Math.PI)/180,offB=(+controls.backRot.value*Math.PI)/180,maskRot=+controls.maskRot.value,colF=controls.colFront.value,colB=controls.colBack.value,inv=controls.invert.checked;
+  const common={count,rInner:r,rOuter,tMin,tMax,invert:inv};
+  $("svgFront").replaceChildren(buildSpokes({...common,peak,stroke:colF,offset:offF}));
+  $("svgBack").replaceChildren(buildSpokes({...common,peak:(peak+Math.PI)%TAU,stroke:colB,offset:offB}));
+  const defs=document.createElementNS("http://www.w3.org/2000/svg","defs");defs.appendChild(makeMask("maskA",!inv,r,r+d,d,maskRot));defs.appendChild(makeMask("maskB",inv,r,r+d,d,maskRot));
+  const merged=$("svgMerged");merged.replaceChildren(defs);
+  const gb=document.createElementNS("http://www.w3.org/2000/svg","g");gb.setAttribute("mask","url(#maskB)");gb.appendChild(buildSpokes({...common,peak:(peak+Math.PI)%TAU,stroke:colB,offset:offB}));
+  const gf=document.createElementNS("http://www.w3.org/2000/svg","g");gf.setAttribute("mask","url(#maskA)");gf.appendChild(buildSpokes({...common,peak,stroke:colF,offset:offF}));
+  merged.appendChild(gb);merged.appendChild(gf);
+  // draw to canvas for recording
+  drawToCanvas();
+}
+
+/* ╔═══════════════ EVENT WIRING & INITIAL RENDER ════════════╗ */
+paramList.forEach(p=>{
+  controls[p.id].addEventListener("input",render);
+  controls[p.id+"Vel"].addEventListener("input",()=>{});
+});
+controls.invert.addEventListener("input",render);
+controls.colFront.oninput=controls.colBack.oninput=render;
+render();
+
+/* ╔══════════════════════ ANIMATION ════════════════════════╗ */
+let playing=false,lastT=null;function animate(t){if(!playing){lastT=null;return}if(lastT===null)lastT=t;const dt=(t-lastT)/1000;lastT=t;paramList.forEach(p=>{const vel=+controls[p.id+"Vel"].value;if(!vel)return;let v=+controls[p.id].value+vel*dt;const {min,max}=p;if(v>max)v=min+(v-max)%(max-min);if(v<min)v=max-(min-v)%(max-min);controls[p.id].value=v;});render();requestAnimationFrame(animate);}$("playBtn").onclick=()=>{playing=!playing;$("playBtn").textContent=playing?"Pause":"Play";if(playing)requestAnimationFrame(animate);};
+
+/* ╔════════════════════ RECORDING SETUP ════════════════════╗ */
+const canvas=$("capture"),ctx=canvas.getContext("2d");let rec,blobParts=[];function drawToCanvas(){const svgData=new XMLSerializer().serializeToString($("svgMerged"));const img=new Image();img.onload=()=>{ctx.clearRect(0,0,VIEW,VIEW);ctx.drawImage(img,0,0,VIEW,VIEW);URL.revokeObjectURL(img.src);};img.src="data:image/svg+xml;base64,"+btoa(svgData);}function startRecording(){const stream=canvas.captureStream(30);rec=new MediaRecorder(stream,{mimeType:"video/webm"});blobParts=[];rec.ondataavailable=e=>blobParts.push(e.data);rec.onstop=()=>{const blob=new Blob(blobParts,{type:"video/webm"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="fractree_animation.webm";a.click();};rec.start();$("recordBtn").disabled=true;$("stopRecBtn").disabled=false;}function stopRecording(){rec.stop();$("recordBtn").disabled=false;$("stopRecBtn").disabled=true;}$("recordBtn").onclick=startRecording;$("stopRecBtn").onclick=stopRecording;
+</script>
+</body>
+</html>
