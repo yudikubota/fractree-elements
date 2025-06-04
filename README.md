@@ -19,18 +19,44 @@ Control all visual parameters (radii, spoke count, thickness, angles, masks) wit
 * **Two-layer composition** – Independently control both the front and back layer, each with its own spoke offset and thickness gradient.
 * **Mask system** – Dynamically rotate and shape the A/B masks.
 * **Dark/light mode friendly** – Clean, modern UI.
+* **Modular architecture** – Clean separation of concerns with organized CSS and JavaScript modules.
 * **No dependencies** – All code is client-side and vanilla JS/HTML/CSS.
 
 ## Usage
 
-1. **Open `index.html` in a modern browser** (Chromium-based browsers recommended for video export).
-2. **Adjust the sliders** to design your logo.
-3. **Set velocities** (number input beside each parameter) for those you want to animate.
-4. Press **Play** to animate; **Pause** to stop.
-5. To record the animation:
+1. **Serve the files via HTTP** (required for module loading):
+   ```bash
+   # Python 3
+   python3 -m http.server 8080
+   
+   # Or open index.html directly in modern browsers that support local file modules
+   ```
 
+2. **Open in browser**: `http://localhost:8080` (or directly if your browser supports it)
+3. **Adjust the sliders** to design your logo.
+4. **Set velocities** (number input beside each parameter) for those you want to animate.
+5. Press **Play** to animate; **Pause** to stop.
+6. To record the animation:
    * Click **Start Recording**. The tool records the merged logo as you see it.
    * When ready, click **Stop & Download** to get your `.webm` video.
+
+## Architecture
+
+The project uses a clean, modular architecture:
+
+```
+├── index.html              # Main HTML structure
+├── assets/
+│   ├── css/
+│   │   └── styles.css      # Responsive styling
+│   └── js/
+│       ├── mobile.js       # Mobile menu management
+│       ├── geometry.js     # Mathematical calculations & SVG
+│       ├── animation.js    # Animation & recording engine
+│       └── main.js         # Main application logic
+```
+
+**For developers**: See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed architecture documentation and development guidelines.
 
 ## Controls
 

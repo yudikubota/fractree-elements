@@ -5,300 +5,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fractree Logo – Animatable & Recordable</title>
-  <style>
-    :root {
-      font-family: system-ui, sans-serif
-    }
 
-    html,
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      box-sizing: border-box
-    }
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.svg">
 
-    /* Mobile-first sidebar styling */
-    #sidebar {
-      width: 340px;
-      padding: 14px;
-      border-right: 1px solid #ccc;
-      background: #fafafa;
-      overflow-y: auto;
-      box-sizing: border-box;
-      transition: transform 0.3s ease-in-out;
-    }
-
-    #sidebar h2 {
-      margin: 0 0 6px;
-      font-size: 1.05em
-    }
-
-    #sidebar label {
-      display: block;
-      margin: 8px 0 2px;
-      font-size: .85em
-    }
-
-    #sidebar input[type=range],
-    #sidebar input[type=color],
-    #sidebar input[type=number] {
-      width: 100%
-    }
-
-    #sidebar input[type=number] {
-      font-size: .8em
-    }
-
-    #stage {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      padding: 20px;
-      align-items: center;
-      overflow: auto;
-      box-sizing: border-box;
-      position: relative;
-    }
-
-    /* Main display section */
-    .mainDisplay {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .mainDisplay h3 {
-      margin: 0;
-      font-size: 1.1em;
-      color: #333;
-      font-weight: 600;
-      text-align: center;
-    }
-
-    #svgMerged {
-      width: 480px;
-      height: 480px;
-      border: 2px solid #2c5aa0;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(44, 90, 160, 0.15);
-      max-width: 100%;
-    }
-
-    /* Preview section */
-    .previewSection {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      margin-top: 12px;
-    }
-
-    .previewSection h4 {
-      margin: 0;
-      font-size: 0.9em;
-      color: #666;
-      font-weight: 500;
-      text-align: center;
-    }
-
-    .svgRow {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .previewContainer {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .previewContainer label {
-      font-size: 0.75em;
-      color: #888;
-      margin: 0;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    #svgFront,
-    #svgBack {
-      width: 200px;
-      height: 200px;
-      border: 1px solid #ddd;
-      background: #fff;
-      border-radius: 4px;
-      opacity: 0.85;
-      transition: opacity 0.2s ease;
-      max-width: 100%;
-    }
-
-    #svgFront:hover,
-    #svgBack:hover {
-      opacity: 1;
-      border-color: #bbb;
-    }
-
-    button {
-      margin: 4px 4px 0 0;
-      padding: 4px 10px
-    }
-
-    /* Mobile menu toggle */
-    #mobileMenuToggle {
-      display: none;
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      z-index: 1000;
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 8px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    #mobileMenuToggle:hover {
-      background: #f0f0f0;
-    }
-
-    /* Mobile overlay */
-    #mobileOverlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 998;
-    }
-
-    /* Mobile responsive styles */
-    @media (max-width: 768px) {
-
-      html,
-      body {
-        flex-direction: column;
-      }
-
-      #mobileMenuToggle {
-        display: block;
-      }
-
-      #sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        width: 280px;
-        z-index: 999;
-        transform: translateX(-100%);
-        border-right: none;
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-      }
-
-      #sidebar.open {
-        transform: translateX(0);
-      }
-
-      #mobileOverlay.open {
-        display: block;
-      }
-
-      #stage {
-        width: 100%;
-        padding: 60px 15px 15px 15px;
-        gap: 20px;
-      }
-
-      #svgMerged {
-        width: min(420px, calc(100vw - 40px));
-        height: min(420px, calc(100vw - 40px));
-      }
-
-      .svgRow {
-        gap: 12px;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      #svgFront,
-      #svgBack {
-        width: min(160px, calc(50vw - 25px));
-        height: min(160px, calc(50vw - 25px));
-      }
-
-      .svgRow {
-        flex-direction: row;
-      }
-
-      button {
-        padding: 8px 16px;
-        font-size: 0.9em;
-      }
-    }
-
-    @media (max-width: 480px) {
-      #sidebar {
-        width: calc(100vw - 40px);
-        max-width: 300px;
-      }
-
-      #stage {
-        padding: 60px 10px 10px 10px;
-        gap: 16px;
-      }
-
-      #svgMerged {
-        width: min(350px, calc(100vw - 30px));
-        height: min(350px, calc(100vw - 30px));
-      }
-
-      #svgFront,
-      #svgBack {
-        width: min(140px, calc(45vw - 15px));
-        height: min(140px, calc(45vw - 15px));
-      }
-
-      .mainDisplay h3 {
-        font-size: 1em;
-      }
-
-      .previewSection h4 {
-        font-size: 0.8em;
-      }
-
-      .previewContainer label {
-        font-size: 0.7em;
-      }
-
-      #sidebar h2 {
-        font-size: 1em;
-      }
-
-      #sidebar label {
-        font-size: 0.8em;
-      }
-
-      button {
-        padding: 6px 12px;
-        font-size: 0.85em;
-      }
-    }
-  </style>
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 
 <body>
-
   <!-- Mobile menu toggle -->
   <button id="mobileMenuToggle">☰ Controls</button>
 
@@ -353,32 +68,33 @@
       <input id="maskRot" type="range" min="0" max="360" value="180">
       <input id="maskRotVel" type="number" step="1" value="0" title="deg / sec">
     </label>
+    <label>Auxiliary Offset (h) <span id="hVal">150</span> px
+      <input id="h" type="range" min="50" max="250" value="150">
+      <input id="hVel" type="number" step="1" value="0" title="px / sec">
+    </label>
 
     <hr>
     <h2>Colours</h2>
     <label>Front <input id="colFront" type="color" value="#000000"></label>
     <label>Back <input id="colBack" type="color" value="#000000"></label>
 
-    <hr><label><input id="invert" type="checkbox" checked>Invert direction</label>
+    <hr>
+    <label><input id="invert" type="checkbox" checked>Invert direction</label>
 
     <hr>
     <button id="playBtn">Play</button>
-    <button id="recordBtn">Start Recording</button>
-    <button id="stopRecBtn" disabled>Stop & Download</button>
+    <button id="recordBtnMerged">Record Merged</button>
+    <button id="stopRecBtnMerged" disabled>Stop & Download</button>
+    <button id="recordBtnAux">Record Aux</button>
+    <button id="stopRecBtnAux" disabled>Stop & Download</button>
     <p><small>Display size adjusts to screen</small></p>
   </aside>
 
   <!-- ────────────────────── STAGE / CANVAS ───────────────────── -->
   <main id="stage">
-    <!-- Main Display (Final Result) -->
-    <div class="mainDisplay">
-      <h3>🎯 Final Result</h3>
-      <svg id="svgMerged"></svg>
-    </div>
-
     <!-- Preview Section (Components) -->
     <div class="previewSection">
-      <h4>🔍 Component Preview</h4>
+      <h4>🔍 Component Previews</h4>
       <div class="svgRow">
         <div class="previewContainer">
           <label>Front Layer</label>
@@ -391,127 +107,29 @@
       </div>
     </div>
 
-    <canvas id="capture" width="400" height="400" style="display:none"></canvas>
+    <!-- Main Display (Final Result) -->
+    <div class="mainDisplay">
+      <h3>🎯 Final Result</h3>
+      <svg id="svgMerged"></svg>
+    </div>
+
+    <!-- Auxiliary Masked Display -->
+    <div class="auxDisplay">
+      <h3>✨ Auxiliary Masked Result</h3>
+      <svg id="svgAuxiliaryMasked"></svg>
+    </div>
+
+    <!-- Hidden canvases for recording -->
+    <canvas id="captureMerged" width="400" height="400" style="display:none"></canvas>
+    <canvas id="captureAux" width="400" height="400" style="display:none"></canvas>
   </main>
 
-  <script>
-    /* ╔═══════════════════════ SHORTCUTS ═══════════════════════╗ */
-    const $ = id => document.getElementById(id);
-    const VIEW = 400, CX = VIEW / 2, CY = VIEW / 2, TAU = Math.PI * 2;
-    ["svgFront", "svgBack", "svgMerged"].forEach(id => $(id).setAttribute("viewBox", `0 0 ${VIEW} ${VIEW}`));
-
-    /* ╔══════════════════ MOBILE MENU LOGIC ══════════════════════╗ */
-    const sidebar = $('sidebar');
-    const mobileMenuToggle = $('mobileMenuToggle');
-    const mobileOverlay = $('mobileOverlay');
-
-    function toggleMobileMenu() {
-      sidebar.classList.toggle('open');
-      mobileOverlay.classList.toggle('open');
-    }
-
-    function closeMobileMenu() {
-      sidebar.classList.remove('open');
-      mobileOverlay.classList.remove('open');
-    }
-
-    mobileMenuToggle.addEventListener('click', toggleMobileMenu);
-    mobileOverlay.addEventListener('click', closeMobileMenu);
-
-    // Close menu when clicking inside sidebar on mobile (after interaction)
-    if (window.innerWidth <= 768) {
-      sidebar.addEventListener('click', (e) => {
-        // Close menu when clicking buttons or after short delay for other interactions
-        if (e.target.tagName === 'BUTTON' || e.target.type === 'color') {
-          setTimeout(() => closeMobileMenu(), 100);
-        }
-      });
-    }
-
-    /* ╔════════════ PARAMETERS & CONTROL WIRING ════════════════╗ */
-    const paramList = [
-      { id: "r", min: 40, max: 100 },
-      { id: "d", min: 10, max: 60 },
-      { id: "numLines", min: 4, max: 120 },
-      { id: "minThick", min: 1, max: 20 },
-      { id: "maxThick", min: 1, max: 40 },
-      { id: "peakAngle", min: 0, max: 360 },
-      { id: "frontRot", min: 0, max: 360 },
-      { id: "backRot", min: 0, max: 360 },
-      { id: "maskRot", min: 0, max: 360 }
-    ];
-    const controls = {}; paramList.forEach(p => { controls[p.id] = $(p.id); controls[p.id + "Vel"] = $(p.id + "Vel") });
-    controls.colFront = $("colFront"); controls.colBack = $("colBack"); controls.invert = $("invert");
-
-    function syncLabels() { paramList.forEach(p => $(p.id + "Val").textContent = Math.round(controls[p.id].value)); }
-
-    /* ╔════════════════════ GEOMETRY HELPERS ═══════════════════╗ */
-    const spokeWidth = (a, p, tMin, tMax, inv) => inv ? tMin + (tMax - tMin) * (((a - p + TAU) % TAU) / TAU) : tMin + (tMax - tMin) * (1 - ((a - p + TAU) % TAU) / TAU);
-    function buildSpokes({ count, rInner, rOuter, tMin, tMax, peak, stroke, invert, offset }) {
-      const frag = document.createDocumentFragment();
-      for (let i = 0; i < count; i++) {
-        const ang = offset + TAU * i / count;
-        const w = spokeWidth(ang, peak + offset, tMin, tMax, invert);
-        const ln = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        ln.setAttribute("x1", CX + rInner * Math.cos(ang)); ln.setAttribute("y1", CY + rInner * Math.sin(ang));
-        ln.setAttribute("x2", CX + rOuter * Math.cos(ang)); ln.setAttribute("y2", CY + rOuter * Math.sin(ang));
-        ln.setAttribute("stroke", stroke); ln.setAttribute("stroke-width", w.toFixed(2)); ln.setAttribute("stroke-linecap", "butt");
-        frag.appendChild(ln);
-      }
-      return frag;
-    }
-    function semiPath(yOff, Rin, Rout, dir) { const S = 90; let d = ""; const s = dir > 0 ? -Math.PI / 2 : Math.PI / 2; for (let i = 0; i <= S; i++) { const th = s + i * Math.PI / S; d += (i ? "L" : "M") + (Rout * Math.cos(th)) + " " + (yOff + Rout * Math.sin(th)) + " "; } for (let i = S; i >= 0; i--) { const th = s + i * Math.PI / S; d += "L" + (Rin * Math.cos(th)) + " " + (Rin * Math.sin(th)) + " "; } return d + "Z"; }
-    function makeMask(id, left, Rin, Rout, dOff, rot) { const m = document.createElementNS("http://www.w3.org/2000/svg", "mask"); m.id = id; const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect"); bg.setAttribute("width", VIEW); bg.setAttribute("height", VIEW); bg.setAttribute("fill", "black"); m.appendChild(bg); const g = document.createElementNS("http://www.w3.org/2000/svg", "g"); g.setAttribute("transform", `translate(${CX} ${CY}) rotate(${rot})`); const half = document.createElementNS("http://www.w3.org/2000/svg", "rect"); half.setAttribute("x", left ? -VIEW : 0); half.setAttribute("y", -VIEW); half.setAttribute("width", VIEW); half.setAttribute("height", VIEW * 2); half.setAttribute("fill", "white"); g.appendChild(half); const add = document.createElementNS("http://www.w3.org/2000/svg", "path"); add.setAttribute("d", semiPath(left ? -dOff : +dOff, Rin, Rout, left ? 1 : -1)); add.setAttribute("fill", "white"); g.appendChild(add); const sub = document.createElementNS("http://www.w3.org/2000/svg", "path"); sub.setAttribute("d", semiPath(left ? +dOff : -dOff, Rin, Rout, left ? -1 : +1)); sub.setAttribute("fill", "black"); g.appendChild(sub); m.appendChild(g); return m; }
-
-    /* ╔════════════════════ RENDER FUNCTION ═════════════════════╗ */
-    function render() {
-      syncLabels();
-      const r = +controls.r.value, d = +controls.d.value, Rout = r + d, rOuter = r + 2 * d, count = +controls.numLines.value, tMin = +controls.minThick.value, tMax = +controls.maxThick.value, peak = (+controls.peakAngle.value * Math.PI) / 180, offF = (+controls.frontRot.value * Math.PI) / 180, offB = (+controls.backRot.value * Math.PI) / 180, maskRot = +controls.maskRot.value, colF = controls.colFront.value, colB = controls.colBack.value, inv = controls.invert.checked;
-      const common = { count, rInner: r, rOuter, tMin, tMax, invert: inv };
-      $("svgFront").replaceChildren(buildSpokes({ ...common, peak, stroke: colF, offset: offF }));
-      $("svgBack").replaceChildren(buildSpokes({ ...common, peak: (peak + Math.PI) % TAU, stroke: colB, offset: offB }));
-      const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs"); defs.appendChild(makeMask("maskA", !inv, r, r + d, d, maskRot)); defs.appendChild(makeMask("maskB", inv, r, r + d, d, maskRot));
-      const merged = $("svgMerged"); merged.replaceChildren(defs);
-      const gb = document.createElementNS("http://www.w3.org/2000/svg", "g"); gb.setAttribute("mask", "url(#maskB)"); gb.appendChild(buildSpokes({ ...common, peak: (peak + Math.PI) % TAU, stroke: colB, offset: offB }));
-      const gf = document.createElementNS("http://www.w3.org/2000/svg", "g"); gf.setAttribute("mask", "url(#maskA)"); gf.appendChild(buildSpokes({ ...common, peak, stroke: colF, offset: offF }));
-      merged.appendChild(gb); merged.appendChild(gf);
-      // draw to canvas for recording
-      drawToCanvas();
-    }
-
-    /* ╔═══════════════ EVENT WIRING & INITIAL RENDER ════════════╗ */
-    paramList.forEach(p => {
-      controls[p.id].addEventListener("input", render);
-      controls[p.id + "Vel"].addEventListener("input", () => { });
-    });
-    controls.invert.addEventListener("input", render);
-    controls.colFront.oninput = controls.colBack.oninput = render;
-    render();
-
-    /* ╔══════════════════════ ANIMATION ════════════════════════╗ */
-    let playing = false, lastT = null; function animate(t) { if (!playing) { lastT = null; return } if (lastT === null) lastT = t; const dt = (t - lastT) / 1000; lastT = t; paramList.forEach(p => { const vel = +controls[p.id + "Vel"].value; if (!vel) return; let v = +controls[p.id].value + vel * dt; const { min, max } = p; if (v > max) v = min + (v - max) % (max - min); if (v < min) v = max - (min - v) % (max - min); controls[p.id].value = v; }); render(); requestAnimationFrame(animate); } $("playBtn").onclick = () => { playing = !playing; $("playBtn").textContent = playing ? "Pause" : "Play"; if (playing) requestAnimationFrame(animate); };
-
-    /* ╔════════════════════ RECORDING SETUP ════════════════════╗ */
-    const canvas = $("capture"), ctx = canvas.getContext("2d"); let rec, blobParts = []; function drawToCanvas() { const svgData = new XMLSerializer().serializeToString($("svgMerged")); const img = new Image(); img.onload = () => { ctx.clearRect(0, 0, VIEW, VIEW); ctx.drawImage(img, 0, 0, VIEW, VIEW); URL.revokeObjectURL(img.src); }; img.src = "data:image/svg+xml;base64," + btoa(svgData); } function startRecording() { const stream = canvas.captureStream(30); rec = new MediaRecorder(stream, { mimeType: "video/webm" }); blobParts = []; rec.ondataavailable = e => blobParts.push(e.data); rec.onstop = () => { const blob = new Blob(blobParts, { type: "video/webm" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "fractree_animation.webm"; a.click(); }; rec.start(); $("recordBtn").disabled = true; $("stopRecBtn").disabled = false; } function stopRecording() { rec.stop(); $("recordBtn").disabled = false; $("stopRecBtn").disabled = true; } $("recordBtn").onclick = startRecording; $("stopRecBtn").onclick = stopRecording;
-
-    /* ╔══════════════════ RESPONSIVE ADJUSTMENTS ═══════════════╗ */
-    // Handle orientation changes and window resizing
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768) {
-        closeMobileMenu();
-      }
-    });
-
-    // Prevent zoom on input focus on iOS
-    document.querySelectorAll('input[type="range"], input[type="number"], input[type="color"]').forEach(input => {
-      input.addEventListener('focus', (e) => {
-        if (window.innerWidth <= 768) {
-          e.target.blur();
-          e.target.focus();
-        }
-      });
-    });
-  </script>
+  <!-- JavaScript Modules -->
+  <!-- Load in dependency order: utilities first, then main app -->
+  <script src="assets/js/mobile.js"></script>
+  <script src="assets/js/geometry.js"></script>
+  <script src="assets/js/animation.js"></script>
+  <script src="assets/js/main.js"></script>
 </body>
 
 </html>
